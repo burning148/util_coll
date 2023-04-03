@@ -25,11 +25,6 @@
             <artifactId>hutool-all</artifactId>
             <version>5.8.11</version>
         </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20220320</version>
-        </dependency>
     </dependencies>
 
 </project>

@@ -1,8 +1,8 @@
 package com.wangjun.util;
 
 import cn.hutool.crypto.digest.DigestUtil;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -52,7 +52,7 @@ public class ReplaceEqualSign {
             JSONObject json = new JSONObject(response.toString());
             JSONArray transResult = json.getJSONArray("trans_result");
             JSONObject result = transResult.getJSONObject(0);
-            return result.getString("dst");
+            return result.getStr("dst");
         } catch (Exception e) {
             e.printStackTrace();
             return null;
