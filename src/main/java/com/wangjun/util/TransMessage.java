@@ -3,6 +3,7 @@ package com.wangjun.util;
 import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import lombok.SneakyThrows;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -10,15 +11,15 @@ import java.net.URL;
 import java.net.URLEncoder;
 
 /**
- * @description 用百度翻译api将国际化中文文件转换成各类语言
  * @author wangjun294
+ * @description 用百度翻译api将国际化中文文件转换成各类语言
  */
-public class ReplaceEqualSign {
+public class TransMessage {
     private static final String API_URL = "http://api.fanyi.baidu.com/api/trans/vip/translate";
     private final String appId;
     private final String secretKey;
 
-    public ReplaceEqualSign(String appId, String secretKey) {
+    public TransMessage(String appId, String secretKey) {
         this.appId = appId;
         this.secretKey = secretKey;
     }
@@ -29,7 +30,7 @@ public class ReplaceEqualSign {
             String encodedQuery = URLEncoder.encode(query, "UTF-8");
 
             // 拼接API请求URL
-            String apiUrl = API_URL + "?q=" + encodedQuery + "&from=zh&to=jp" // zh 中文，jp日文，us英文，详见百度翻译文档
+            String apiUrl = API_URL + "?q=" + encodedQuery + "&from=zh&to=jp" // zh 中文，jp日文，en英文，详见百度翻译文档
                     + "&appid=" + appId + "&salt=" + System.currentTimeMillis()
                     + "&sign=" + getSign(query);
 
@@ -70,40 +71,36 @@ public class ReplaceEqualSign {
         return DigestUtil.md5Hex(input);
     }
 
+    @SneakyThrows
     public void replace(String inputFileName, String outputFileName) {
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(inputFileName));
-            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split("=");
-                if (parts.length > 1) {
-                    String key = parts[0];
-                    String value = parts[1];
-                    String translation = translate(value);
-                    Thread.sleep(1000);
-                    writer.write(key + "=" + translation);
-                    writer.newLine();
-                } else {
-                    writer.write(line);
-                    writer.newLine();
-                }
+        BufferedReader reader = new BufferedReader(new FileReader(inputFileName));
+        BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName));
+        String line;
+        int lineNo = 0; // 记录执行位置
+        while ((line = reader.readLine()) != null) {
+            String[] parts = line.split("=");
+            if (parts.length > 1) {
+                String key = parts[0];
+                String value = parts[1];
+                String translation = translate(value);
+                Thread.sleep(1000); // 百度翻译api调用频率限制
+                writer.write(key + "=" + translation);
+                writer.newLine();
+            } else {
+                writer.write(line);
+                writer.newLine();
             }
-            reader.close();
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            System.out.println(lineNo++);
         }
+        reader.close();
+        writer.close();
     }
 
     public static void main(String[] args) {
-        String appId = "*";
-        String secretKey = "*";
-        ReplaceEqualSign replacer = new ReplaceEqualSign(appId, secretKey);
-        replacer.replace("D:\\MyData\\wangjun294\\Desktop\\中文.properties",
+        String appId = "20191025000344353";
+        String secretKey = "FYakeSBkJE5j0DZxQ6VK";
+        TransMessage replacer = new TransMessage(appId, secretKey);
+        replacer.replace("D:\\MyData\\wangjun294\\Desktop\\output_zh.properties",
                 "D:\\MyData\\wangjun294\\Desktop\\output_jp.properties");
     }
-
 }
