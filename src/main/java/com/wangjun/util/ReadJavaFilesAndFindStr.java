@@ -3,6 +3,7 @@ package com.wangjun.util;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -45,14 +46,17 @@ public class ReadJavaFilesAndFindStr {
      * @param folder
      * @return
      */
-    public static List<File> listAllJavaFiles(File folder) {
+    @NotNull
+    public static List<File> listAllJavaFiles(@NotNull File folder) {
         File[] files = folder.listFiles();
         List<File> javaFiles = new ArrayList<>();
-        for (File file : files) {
-            if (file.isFile() && file.getName().endsWith(".java")) {
-                javaFiles.add(file);
-            } else if (file.isDirectory()) {
-                javaFiles.addAll(listAllJavaFiles(file));
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile() && file.getName().endsWith(".java")) {
+                    javaFiles.add(file);
+                } else if (file.isDirectory()) {
+                    javaFiles.addAll(listAllJavaFiles(file));
+                }
             }
         }
         return javaFiles;
@@ -65,7 +69,8 @@ public class ReadJavaFilesAndFindStr {
      * @param list
      * @return
      */
-    public static List<String> contractWithEquals(List<String> list) {
+    @NotNull
+    public static List<String> contractWithEquals(@NotNull List<String> list) {
         List<String> result = new ArrayList<>();
         StringBuilder builder = new StringBuilder();
         for (String s : list) {
